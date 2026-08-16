@@ -3,6 +3,7 @@ package grpcserver
 import (
 	"errors"
 	"fmt"
+	errD "movies-service/internal/core/domain/err-d"
 	"testing"
 
 	"google.golang.org/grpc/codes"
@@ -17,12 +18,12 @@ func TestToGRPCError(t *testing.T) {
 	}{
 		{
 			name:     "ErrMovieNotFound",
-			inputErr: fmt.Errorf("Error movie not found"),
+			inputErr: errD.ErrMovieNotFound,
 			wantCode: codes.NotFound,
 		},
 		{
 			name:     "ErrInvalidMovieData",
-			inputErr: fmt.Errorf("Invalid movie data"),
+			inputErr: errD.ErrInvalidMovieData,
 			wantCode: codes.InvalidArgument,
 		},
 		{

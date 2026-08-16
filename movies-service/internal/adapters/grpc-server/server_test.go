@@ -7,6 +7,7 @@ import (
 
 	grpcserver "movies-service/internal/adapters/grpc-server"
 	"movies-service/internal/core/domain/entity"
+	errD "movies-service/internal/core/domain/err-d"
 	"movies-service/internal/core/port/output"
 
 	"github.com/FranciscoHonorat/movies/proto"
@@ -49,6 +50,7 @@ func (m *MockMovieService) CreateMovie(ctx context.Context, movie *entity.MovieE
 	}
 	return nil, args.Error(1)
 }
+
 func (m *MockMovieService) DeleteMovie(ctx context.Context, id int) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
@@ -100,10 +102,10 @@ func TestServer(t *testing.T) {
 				name: "Sad Path: Erro retornado pelo serviço",
 				req:  &proto.GetMovieRequest{Id: 999},
 				setupMock: func(m *MockMovieService) {
-					m.On("GetMovieByID", mock.Anything, 999).Return(nil, errors.New("filme não encontrado"))
+					m.On("GetMovieByID", mock.Anything, 999).Return(nil, errD.ErrMovieNotFound)
 				},
 				wantErr:      true,
-				expectedCode: codes.Internal,
+				expectedCode: codes.NotFound,
 			},
 		}
 
@@ -175,7 +177,7 @@ func TestServer(t *testing.T) {
 				tt.setupMock(mockService)
 
 				server := grpcserver.NewServer(mockService)
-				resp, err := server.ListMovies(context.Background(), tt.req)
+				resp, err := server.ListMovie(context.Background(), tt.req)
 
 				if tt.wantErr {
 					assertGRPCError(t, err, tt.expectedCode)
@@ -190,6 +192,8 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("CreateMovie", func(t *testing.T) {
+		createdMovie := createTestMovie(t, 1, "Tenet", "2020")
+
 		tests := []struct {
 			name         string
 			req          *proto.CreateMovieRequest
@@ -203,11 +207,11 @@ func TestServer(t *testing.T) {
 				req:  &proto.CreateMovieRequest{Title: "Tenet", Year: "2020"},
 				setupMock: func(m *MockMovieService) {
 					m.On("CreateMovie", mock.Anything, mock.AnythingOfType("*entity.MovieEntity")).
-						Return(nil)
+						Return(createdMovie, nil)
 				},
 				expectedResp: &proto.CreateMovieResponse{
 					Movie: &proto.Movie{
-						Id:    0,
+						Id:    1,
 						Title: "Tenet",
 						Year:  "2020",
 					},
@@ -215,20 +219,21 @@ func TestServer(t *testing.T) {
 				wantErr: false,
 			},
 			{
-				name: "Sad Path: Invalidação de dados na criação da entidade",
-				req:  &proto.CreateMovieRequest{Title: "", Year: "2020"}, // Título vazio causa erro de ValueObject
+				name: "Sad Path: Dados inválidos no serviço",
+				req:  &proto.CreateMovieRequest{Title: "Tenet", Year: "2020"},
 				setupMock: func(m *MockMovieService) {
-					// Mock não deve ser chamado
+					m.On("CreateMovie", mock.Anything, mock.AnythingOfType("*entity.MovieEntity")).
+						Return(nil, errD.ErrInvalidMovieData) // Ou outro erro mapeado para InvalidArgument
 				},
 				wantErr:      true,
-				expectedCode: codes.Internal,
+				expectedCode: codes.InvalidArgument,
 			},
 			{
 				name: "Sad Path: Erro no repositório/serviço durante a criação",
 				req:  &proto.CreateMovieRequest{Title: "Dunkirk", Year: "2017"},
 				setupMock: func(m *MockMovieService) {
 					m.On("CreateMovie", mock.Anything, mock.AnythingOfType("*entity.MovieEntity")).
-						Return(errors.New("duplicado"))
+						Return(nil, errors.New("duplicado"))
 				},
 				wantErr:      true,
 				expectedCode: codes.Internal,
@@ -277,10 +282,10 @@ func TestServer(t *testing.T) {
 				name: "Sad Path: Erro ao deletar filme",
 				req:  &proto.DeleteMovieRequest{Id: 99},
 				setupMock: func(m *MockMovieService) {
-					m.On("DeleteMovie", mock.Anything, 99).Return(errors.New("filme não encontrado"))
+					m.On("DeleteMovie", mock.Anything, 99).Return(errD.ErrMovieNotFound)
 				},
 				wantErr:      true,
-				expectedCode: codes.Internal,
+				expectedCode: codes.NotFound,
 			},
 		}
 

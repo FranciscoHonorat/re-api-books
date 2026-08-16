@@ -35,6 +35,23 @@ func NewMovieEntity(id int, title, year string) (*MovieEntity, error) {
 	}, nil
 }
 
+func NewMovieEntityForCreate(title, year string) (*MovieEntity, error) {
+	movieTitle, err := valueobjects.NewMovieTitle(title)
+	if err != nil {
+		return nil, err
+	}
+
+	movieYear, err := valueobjects.NewMovieYear(year)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MovieEntity{
+		Title: *movieTitle,
+		Year:  *movieYear,
+	}, nil
+}
+
 func (m *MovieEntity) Validate() error {
 	if m.ID.ZeroValue() {
 		return errD.ErrIDNotValid

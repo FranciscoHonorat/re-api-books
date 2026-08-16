@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+FROM golang:1.26.4-alpine AS builder
+
+WORKDIR /app
+
+COPY go.work go.work.sum ./
+COPY api-gateway/go.mod api-gateway/go.sum ./api-gateway/
+COPY movies-service/go.mod movies-service/go.sum ./movies-service/
+COPY proto/go.mod proto/go.sum ./proto/
+COPY shared/go.mod* shared/go.sum* ./shared/
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+COPY . .
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/server ./api-gateway/cmd
+
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk --no-cache add ca-certificates
+
+COPY --from=builder /app/server .
+
+EXPOSE 8080
+
+ENV GRPC_SERVER_URL=movies-service:50051
+
+CMD ["./server"]

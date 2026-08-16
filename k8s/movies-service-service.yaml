@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: movies-service
+  labels:
+    app: movies-service
+spec:
+  type: ClusterIP
+  selector:
+    app: movies-service
+  ports:
+    - port: 50051
+      targetPort: 50051

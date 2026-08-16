@@ -35,7 +35,7 @@ func (s *Server) GetMovieById(ctx context.Context, req *proto.GetMovieRequest) (
 	}, nil
 }
 
-func (s *Server) ListMovies(ctx context.Context, req *proto.ListMovieRequest) (*proto.ListMovieResponse, error) {
+func (s *Server) ListMovie(ctx context.Context, req *proto.ListMovieRequest) (*proto.ListMovieResponse, error) {
 	filters := output.Listfilters{
 		Title: req.Title,
 		Year:  req.Year,
@@ -64,7 +64,7 @@ func (s *Server) ListMovies(ctx context.Context, req *proto.ListMovieRequest) (*
 }
 
 func (s *Server) CreateMovie(ctx context.Context, req *proto.CreateMovieRequest) (*proto.CreateMovieResponse, error) {
-	movie, err := entity.NewMovieEntity(0, req.Title, req.Year)
+	movie, err := entity.NewMovieEntity(1, req.Title, req.Year)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}

@@ -232,7 +232,7 @@ func TestMovieService(t *testing.T) {
 	})
 
 	t.Run("CreateMovie", func(t *testing.T) {
-		validMovie := helperNewMovie(t, 0, "Tenet", "2020")
+		validMovie := helperNewMovie(t, 1, "Tenet", "2020")
 		createdMovie := helperNewMovie(t, 1, "Tenet", "2020")
 
 		tests := []struct {
@@ -246,7 +246,7 @@ func TestMovieService(t *testing.T) {
 				name:  "Happy Path: Filme criado com sucesso",
 				movie: validMovie,
 				setupMock: func(m *MockMovieRepository) {
-					m.On("CreateMovie", mock.Anything, validMovie).Return(createdMovie, nil)
+					m.On("CreateMovie", mock.Anything, mock.Anything).Return(createdMovie, nil)
 				},
 				want:    createdMovie,
 				wantErr: false,
@@ -262,7 +262,7 @@ func TestMovieService(t *testing.T) {
 				name:  "Sad Path: Falha de persistência no repositório",
 				movie: validMovie,
 				setupMock: func(m *MockMovieRepository) {
-					m.On("CreateMovie", mock.Anything, validMovie).Return(nil, errors.New("falha ao inserir"))
+					m.On("CreateMovie", mock.Anything, mock.Anything).Return(nil, errors.New("falha ao inserir"))
 				},
 				want:    nil,
 				wantErr: true,

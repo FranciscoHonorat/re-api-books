@@ -1,0 +1,221 @@
+basePath: /api/v1
+definitions:
+  handlers.CreateMovieStruct:
+    properties:
+      title:
+        type: string
+      year:
+        type: string
+    required:
+    - title
+    - year
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+  description: |-
+    API Gateway para gerenciamento de filmes
+    Uma API RESTful que fornece operações CRUD para gerenciar uma coleção de filmes,
+    com suporte a paginação, filtragem e ordenação.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Movies API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Verifica se o API Gateway está funcionando e retorna informações
+        de saúde do serviço
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Serviço está funcionando corretamente
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health Check
+      tags:
+      - System
+  /movies:
+    get:
+      consumes:
+      - application/json
+      description: Retorna uma lista paginada de filmes com suporte a filtragem, ordenação
+        e busca
+      parameters:
+      - description: Filtro por título (busca parcial)
+        in: query
+        name: title
+        type: string
+      - description: Filtro por ano de lançamento
+        in: query
+        name: year
+        type: string
+      - default: 1
+        description: Número da página
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Quantidade de filmes por página
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - default: title
+        description: Campo para ordenação
+        enum:
+        - title
+        - year
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de filmes recuperada com sucesso
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Parâmetros inválidos
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Listar filmes
+      tags:
+      - Movies
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo filme no banco de dados com os dados fornecidos
+      parameters:
+      - description: Dados do novo filme
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateMovieStruct'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Filme criado com sucesso
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Dados inválidos ou campos obrigatórios faltando
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Criar novo filme
+      tags:
+      - Movies
+  /movies/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove permanentemente um filme do banco de dados
+      parameters:
+      - description: ID do filme a deletar
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Filme deletado com sucesso
+        "400":
+          description: ID inválido
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Filme não encontrado
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deletar filme
+      tags:
+      - Movies
+    get:
+      consumes:
+      - application/json
+      description: Recupera os detalhes completos de um filme específico usando seu
+        ID
+      parameters:
+      - description: ID do filme
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Filme encontrado
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: ID inválido
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Filme não encontrado
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Obter filme por ID
+      tags:
+      - Movies
+schemes:
+- http
+- https
+swagger: "2.0"

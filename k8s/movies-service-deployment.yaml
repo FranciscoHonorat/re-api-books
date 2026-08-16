@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movies-service-deployment
+  labels:
+    app: movies-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies-service  
+  template:
+    metadata:
+      labels:
+        app: movies-service
+    spec:
+      containers:
+        - name: movies-service-container
+          image: movies-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 50051
+          env:
+            - name: MONGO_URI
+              value: mongodb://root:password@mongo-service:27017/movies?authSource=admin
+            - name: GRPC_PORT
+              value: "50051"
+            - name: RABBITMQ_URI
+              value: amqp://guest:guest@rabbitmq-service:5672/
