@@ -7,7 +7,7 @@ import (
 
 type MovieRepository interface {
 	GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error)
-	ListMovies(ctx context.Context, filters Listfilters, pagination Pagination, sorting Sorting) ([]entity.MovieEntity, error)
+	ListMovies(ctx context.Context, filters Listfilters, pagination Pagination, sorting Sorting) ([]*entity.MovieEntity, error)
 	CountMovies(ctx context.Context, filters Listfilters) (int, error)
 	CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error)
 	DeleteMovie(ctx context.Context, id int) error

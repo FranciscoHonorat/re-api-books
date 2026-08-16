@@ -20,7 +20,7 @@ type movieRepository struct {
 	Year  string `bson:"year"`
 }
 
-func NewMovieRepository(collection *mongo.Collection) *Movie {
+func NewMovieRepository(collection *mongo.Collection) output.MovieRepository {
 	return &Movie{
 		collection: collection,
 	}
@@ -50,7 +50,7 @@ func (m *Movie) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, 
 	return ToDomain(doc)
 }
 
-func (m *Movie) ListMovies(ctx context.Context, filters output.Listfilters, pagination output.Pagination, sorting output.Sorting) ([]entity.MovieEntity, error) {
+func (m *Movie) ListMovies(ctx context.Context, filters output.Listfilters, pagination output.Pagination, sorting output.Sorting) ([]*entity.MovieEntity, error) {
 	filter := bson.M{}
 	if filters.Title != "" {
 		filter["title"] = bson.M{"$regex": filters.Title, "$options": "i"}
@@ -70,28 +70,23 @@ func (m *Movie) ListMovies(ctx context.Context, filters output.Listfilters, pagi
 		findOptions.SetSort(bson.D{bson.E{Key: sorting.SortBy, Value: 1}})
 	}
 
-	var docs []movieRepository
 	cursor, err := m.collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
+	var movies []*entity.MovieEntity
 	for cursor.Next(ctx) {
 		var doc movieRepository
 		if err := cursor.Decode(&doc); err != nil {
 			return nil, err
 		}
-		docs = append(docs, doc)
-	}
-
-	var movies []entity.MovieEntity
-	for _, doc := range docs {
 		movie, err := ToDomain(doc)
 		if err != nil {
 			return nil, err
 		}
-		movies = append(movies, *movie)
+		movies = append(movies, movie)
 	}
 
 	return movies, nil

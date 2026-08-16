@@ -69,15 +69,16 @@ func (s *Server) CreateMovie(ctx context.Context, req *proto.CreateMovieRequest)
 		return nil, toGRPCError(err)
 	}
 
-	if err := s.service.CreateMovie(ctx, movie); err != nil {
+	createdMovie, err := s.service.CreateMovie(ctx, movie)
+	if err != nil {
 		return nil, toGRPCError(err)
 	}
 
 	return &proto.CreateMovieResponse{
 		Movie: &proto.Movie{
-			Id:    int(movie.GetID()),
-			Title: movie.GetTitle(),
-			Year:  movie.GetYear(),
+			Id:    int(createdMovie.GetID()),
+			Title: createdMovie.GetTitle(),
+			Year:  createdMovie.GetYear(),
 		},
 	}, nil
 }

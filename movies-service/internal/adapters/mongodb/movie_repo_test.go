@@ -68,8 +68,9 @@ func TestMovieRepository(t *testing.T) {
 		movies, err := repo.ListMovies(context.Background(), filters, pagination, sorting)
 		require.NoError(t, err)
 		require.Len(t, movies, 2)
-		validateMovie(t, &movies[0], 2, "The Dark Knight", "2008")
-		validateMovie(t, &movies[1], 1, "Inception", "2010")
+
+		validateMovie(t, movies[0], 2, "The Dark Knight", "2008")
+		validateMovie(t, movies[1], 1, "Inception", "2010")
 
 		_, err = collection.DeleteMany(context.Background(), bson.M{"_id": bson.M{"$in": []int{1, 2, 3, 4, 5}}})
 		require.NoError(t, err)
@@ -122,7 +123,7 @@ func TestMovieRepository(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Sad Path: Database connection error", func(t *testing.T) {
+	t.Run("Happy Path: DeleteMovie via repo", func(t *testing.T) {
 		client, err := mongo.Connect(options.Client().ApplyURI(mongoURI))
 		require.NoError(t, err)
 		defer client.Disconnect(context.Background())
@@ -130,40 +131,28 @@ func TestMovieRepository(t *testing.T) {
 		collection := client.Database("testdb").Collection("movies")
 		repo := mongodb.NewMovieRepository(collection)
 
-		_, err = repo.GetMovieByID(context.Background(), 1)
-		assert.Error(t, err)
-	})
-
-	t.Run("Happy Path: Delete movie and verify removal", func(t *testing.T) {
-		client, err := mongo.Connect(options.Client().ApplyURI(mongoURI))
-		require.NoError(t, err)
-		defer client.Disconnect(context.Background())
-
-		collection := client.Database("testdb").Collection("movies")
-		repo := mongodb.NewMovieRepository(collection)
-
-		testMovie := bson.M{"_id": 1, "title": "Inception", "year": "2010"}
+		testMovie := bson.M{"_id": 10, "title": "Inception", "year": "2010"}
 		_, err = collection.InsertOne(context.Background(), testMovie)
 		require.NoError(t, err)
 
-		_, err = collection.DeleteOne(context.Background(), bson.M{"_id": 1})
+		err = repo.DeleteMovie(context.Background(), 10)
 		require.NoError(t, err)
 
-		movie, err := repo.GetMovieByID(context.Background(), 1)
+		movie, err := repo.GetMovieByID(context.Background(), 10)
 		assert.Nil(t, movie)
 		assert.Error(t, err)
 	})
 
-	t.Run("Sad Path: Delete a movie that does not exist", func(t *testing.T) {
+	t.Run("Sad Path: DeleteMovie with non-existent ID", func(t *testing.T) {
 		client, err := mongo.Connect(options.Client().ApplyURI(mongoURI))
 		require.NoError(t, err)
 		defer client.Disconnect(context.Background())
 
 		collection := client.Database("testdb").Collection("movies")
+		repo := mongodb.NewMovieRepository(collection)
 
-		result, err := collection.DeleteOne(context.Background(), bson.M{"_id": 999})
-		require.NoError(t, err)
-		assert.Equal(t, int64(0), result.DeletedCount)
+		err = repo.DeleteMovie(context.Background(), 999)
+		assert.Error(t, err)
 	})
 
 	t.Run("Sad Path: Insert movie with duplicate ID", func(t *testing.T) {

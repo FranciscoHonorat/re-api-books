@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"movies-service/internal/core/domain/entity"
 	errD "movies-service/internal/core/domain/err-d"
 	"movies-service/internal/core/port/output"
@@ -13,63 +14,37 @@ type MovieService struct {
 }
 
 func NewMovieService(repo output.MovieRepository) *MovieService {
-	return &MovieService{
-		repo: repo,
-	}
+	return &MovieService{repo: repo}
 }
 
-func (m *MovieService) GetMovie(ctx context.Context, id int) (*entity.MovieEntity, error) {
+func (s *MovieService) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error) {
 	if id <= 0 {
 		return nil, errD.ErrIDNotValid
 	}
-
-	movie, err := m.repo.GetMovieByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return movie, nil
+	return s.repo.GetMovieByID(ctx, id)
 }
 
-func (m *MovieService) ListMovies(ctx context.Context, page output.Pagination, list output.Listfilters, sorting output.Sorting) ([]entity.MovieEntity, int, error) {
-	movies, err := m.repo.ListMovies(ctx, list, page, sorting)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	total, err := m.repo.CountMovies(ctx, list)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return movies, total, nil
+func (s *MovieService) ListMovies(ctx context.Context, filters output.Listfilters, pagination output.Pagination, sorting output.Sorting) ([]*entity.MovieEntity, error) {
+	return s.repo.ListMovies(ctx, filters, pagination, sorting)
 }
 
-func (m *MovieService) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error) {
+func (s *MovieService) CountMovies(ctx context.Context, filters output.Listfilters) (int, error) {
+	return s.repo.CountMovies(ctx, filters)
+}
+
+func (s *MovieService) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error) {
 	if movie == nil {
 		return nil, fmt.Errorf("Invalid Movie")
 	}
-
 	if err := movie.Validate(); err != nil {
 		return nil, fmt.Errorf("Invalid Movie")
 	}
-
-	createMovie, err := m.repo.CreateMovie(ctx, movie)
-	if err != nil {
-		return nil, fmt.Errorf("Movie no create")
-	}
-
-	return createMovie, nil
+	return s.repo.CreateMovie(ctx, movie)
 }
 
-func (m *MovieService) DeleteMovie(ctx context.Context, id int) error {
+func (s *MovieService) DeleteMovie(ctx context.Context, id int) error {
 	if id <= 0 {
 		return fmt.Errorf("Invalid ID")
 	}
-
-	if err := m.repo.DeleteMovie(ctx, id); err != nil {
-		return err
-	}
-
-	return nil
+	return s.repo.DeleteMovie(ctx, id)
 }
