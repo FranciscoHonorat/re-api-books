@@ -1,0 +1,57 @@
+//Protobuf - serialização de dados.
+
+syntax = "proto3";
+
+package movies;
+
+option go_package = "github.com/FranciscoHonorat/movies/proto";
+
+message Movie {
+    int32 id  = 1;
+    string title = 2;   
+    string year = 3;
+}
+
+service MovieService {
+    rpc GetMovie(GetMovieRequest) returns (GetMovieResponse);
+    rpc ListMovie(ListMovieRequest) returns (ListMovieResponse);
+    rpc CreateMovie(CreateMovieRequest) returns (CreateMovieResponse);
+    rpc DeleteMovie(DeleteMovieRequest) returns (DeleteMovieResponse);
+}
+
+message GetMovieRequest {
+    int32 id = 1;
+}
+
+message GetMovieResponse {
+    Movie movie = 1;
+}
+
+message ListMovieRequest {
+    string title = 1;
+    string year = 2;
+    int32 page = 3;
+    int32 limit = 4;
+    string sort_by = 5;
+}
+
+message ListMovieResponse {
+    repeated Movie movie = 1;
+}
+
+message CreateMovieRequest {
+    string title = 1;
+    string year = 2;
+}
+
+message CreateMovieResponse {
+    Movie movie = 1;    
+}
+
+message DeleteMovieRequest {
+    int32 id = 1;
+}
+
+message DeleteMovieResponse {
+    bool success = 1;
+}
