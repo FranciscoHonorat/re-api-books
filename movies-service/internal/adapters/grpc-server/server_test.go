@@ -22,7 +22,7 @@ type MockMovieService struct {
 	mock.Mock
 }
 
-func (m *MockMovieService) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error) {
+func (m *MockMovieService) GetMovieByID(ctx context.Context, id int32) (*entity.MovieEntity, error) {
 	args := m.Called(ctx, id)
 	if res := args.Get(0); res != nil {
 		return res.(*entity.MovieEntity), args.Error(1)
@@ -38,9 +38,9 @@ func (m *MockMovieService) ListMovies(ctx context.Context, filters output.Listfi
 	return nil, args.Error(1)
 }
 
-func (m *MockMovieService) CountMovies(ctx context.Context, filters output.Listfilters) (int, error) {
+func (m *MockMovieService) CountMovies(ctx context.Context, filters output.Listfilters) (int32, error) {
 	args := m.Called(ctx, filters)
-	return args.Int(0), args.Error(1)
+	return int32(args.Int(0)), args.Error(1)
 }
 
 func (m *MockMovieService) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error) {
@@ -51,12 +51,12 @@ func (m *MockMovieService) CreateMovie(ctx context.Context, movie *entity.MovieE
 	return nil, args.Error(1)
 }
 
-func (m *MockMovieService) DeleteMovie(ctx context.Context, id int) error {
+func (m *MockMovieService) DeleteMovie(ctx context.Context, id int32) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
-func createTestMovie(t *testing.T, id int, title, year string) *entity.MovieEntity {
+func createTestMovie(t *testing.T, id int32, title, year string) *entity.MovieEntity {
 	t.Helper()
 	movie, err := entity.NewMovieEntity(id, title, year)
 	require.NoError(t, err)

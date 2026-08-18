@@ -17,7 +17,7 @@ func NewMovieService(repo output.MovieRepository) *MovieService {
 	return &MovieService{repo: repo}
 }
 
-func (s *MovieService) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error) {
+func (s *MovieService) GetMovieByID(ctx context.Context, id int32) (*entity.MovieEntity, error) {
 	if id <= 0 {
 		return nil, errD.ErrIDNotValid
 	}
@@ -28,7 +28,7 @@ func (s *MovieService) ListMovies(ctx context.Context, filters output.Listfilter
 	return s.repo.ListMovies(ctx, filters, pagination, sorting)
 }
 
-func (s *MovieService) CountMovies(ctx context.Context, filters output.Listfilters) (int, error) {
+func (s *MovieService) CountMovies(ctx context.Context, filters output.Listfilters) (int32, error) {
 	return s.repo.CountMovies(ctx, filters)
 }
 
@@ -42,7 +42,7 @@ func (s *MovieService) CreateMovie(ctx context.Context, movie *entity.MovieEntit
 	return s.repo.CreateMovie(ctx, movie)
 }
 
-func (s *MovieService) DeleteMovie(ctx context.Context, id int) error {
+func (s *MovieService) DeleteMovie(ctx context.Context, id int32) error {
 	if id <= 0 {
 		return fmt.Errorf("Invalid ID")
 	}

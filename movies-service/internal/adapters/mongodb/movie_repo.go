@@ -15,7 +15,7 @@ type Movie struct {
 }
 
 type movieRepository struct {
-	Id    int    `bson:"_id"`
+	Id    int32    `bson:"_id"`
 	Title string `bson:"title"`
 	Year  string `bson:"year"`
 }
@@ -38,7 +38,7 @@ func ToDomain(doc movieRepository) (*entity.MovieEntity, error) {
 	return entity.NewMovieEntity(doc.Id, doc.Title, doc.Year)
 }
 
-func (m *Movie) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error) {
+func (m *Movie) GetMovieByID(ctx context.Context, id int32) (*entity.MovieEntity, error) {
 	filter := bson.M{"_id": id}
 
 	var doc movieRepository
@@ -92,7 +92,7 @@ func (m *Movie) ListMovies(ctx context.Context, filters output.Listfilters, pagi
 	return movies, nil
 }
 
-func (m *Movie) CountMovies(ctx context.Context, filters output.Listfilters) (int, error) {
+func (m *Movie) CountMovies(ctx context.Context, filters output.Listfilters) (int32, error) {
 	filter := bson.M{}
 	if filters.Title != "" {
 		filter["title"] = bson.M{"$regex": filters.Title, "$options": "i"}
@@ -106,7 +106,7 @@ func (m *Movie) CountMovies(ctx context.Context, filters output.Listfilters) (in
 		return 0, err
 	}
 
-	return int(count), nil
+	return int32(count), nil
 }
 
 func (m *Movie) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error) {
@@ -123,7 +123,7 @@ func (m *Movie) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*en
 	return ToDomain(updatedDoc)
 }
 
-func (m *Movie) DeleteMovie(ctx context.Context, id int) error {
+func (m *Movie) DeleteMovie(ctx context.Context, id int32) error {
 	filter := bson.M{"_id": id}
 
 	result, err := m.collection.DeleteOne(ctx, filter)

@@ -15,7 +15,7 @@ import (
 )
 
 func TestMovieRepository(t *testing.T) {
-	validateMovie := func(t *testing.T, movie *entity.MovieEntity, expectedID int, expectedTitle string, expectedYear string) {
+	validateMovie := func(t *testing.T, movie *entity.MovieEntity, expectedID int32, expectedTitle string, expectedYear string) {
 		assert.Equal(t, expectedID, movie.GetID())
 		assert.Equal(t, expectedTitle, movie.GetTitle())
 		assert.Equal(t, expectedYear, movie.GetYear())
@@ -72,7 +72,7 @@ func TestMovieRepository(t *testing.T) {
 		validateMovie(t, movies[0], 2, "The Dark Knight", "2008")
 		validateMovie(t, movies[1], 1, "Inception", "2010")
 
-		_, err = collection.DeleteMany(context.Background(), bson.M{"_id": bson.M{"$in": []int{1, 2, 3, 4, 5}}})
+		_, err = collection.DeleteMany(context.Background(), bson.M{"_id": bson.M{"$in": []int32{1, 2, 3, 4, 5}}})
 		require.NoError(t, err)
 	})
 

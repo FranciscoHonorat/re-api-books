@@ -7,9 +7,9 @@ import (
 )
 
 type MovieService interface {
-	GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error)
+	GetMovieByID(ctx context.Context, id int32) (*entity.MovieEntity, error)
 	ListMovies(ctx context.Context, filters output.Listfilters, pagination output.Pagination, sorting output.Sorting) ([]*entity.MovieEntity, error)
-	CountMovies(ctx context.Context, filters output.Listfilters) (int, error)
+	CountMovies(ctx context.Context, filters output.Listfilters) (int32, error)
 	CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error)
-	DeleteMovie(ctx context.Context, id int) error
+	DeleteMovie(ctx context.Context, id int32) error
 }

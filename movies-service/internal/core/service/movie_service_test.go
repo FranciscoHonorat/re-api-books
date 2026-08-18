@@ -19,7 +19,7 @@ type MockMovieRepository struct {
 	mock.Mock
 }
 
-func (m *MockMovieRepository) GetMovieByID(ctx context.Context, id int) (*entity.MovieEntity, error) {
+func (m *MockMovieRepository) GetMovieByID(ctx context.Context, id int32) (*entity.MovieEntity, error) {
 	args := m.Called(ctx, id)
 	if res := args.Get(0); res != nil {
 		return res.(*entity.MovieEntity), args.Error(1)
@@ -35,9 +35,9 @@ func (m *MockMovieRepository) ListMovies(ctx context.Context, filters output.Lis
 	return nil, args.Error(1)
 }
 
-func (m *MockMovieRepository) CountMovies(ctx context.Context, filters output.Listfilters) (int, error) {
+func (m *MockMovieRepository) CountMovies(ctx context.Context, filters output.Listfilters) (int32, error) {
 	args := m.Called(ctx, filters)
-	return args.Int(0), args.Error(1)
+	return int32(args.Int(0)), args.Error(1)
 }
 
 func (m *MockMovieRepository) CreateMovie(ctx context.Context, movie *entity.MovieEntity) (*entity.MovieEntity, error) {
@@ -48,13 +48,13 @@ func (m *MockMovieRepository) CreateMovie(ctx context.Context, movie *entity.Mov
 	return nil, args.Error(1)
 }
 
-func (m *MockMovieRepository) DeleteMovie(ctx context.Context, id int) error {
+func (m *MockMovieRepository) DeleteMovie(ctx context.Context, id int32) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
 // Helpers de Teste
-func helperNewMovie(t *testing.T, id int, title, year string) *entity.MovieEntity {
+func helperNewMovie(t *testing.T, id int32, title, year string) *entity.MovieEntity {
 	t.Helper()
 	movie, err := entity.NewMovieEntity(id, title, year)
 	require.NoError(t, err)
@@ -67,7 +67,7 @@ func TestMovieService(t *testing.T) {
 
 		tests := []struct {
 			name      string
-			id        int
+			id        int32
 			setupMock func(m *MockMovieRepository)
 			want      *entity.MovieEntity
 			wantErr   bool
@@ -189,7 +189,7 @@ func TestMovieService(t *testing.T) {
 			name      string
 			filters   output.Listfilters
 			setupMock func(m *MockMovieRepository)
-			want      int
+			want      int32
 			wantErr   bool
 		}{
 			{
@@ -292,7 +292,7 @@ func TestMovieService(t *testing.T) {
 	t.Run("DeleteMovie", func(t *testing.T) {
 		tests := []struct {
 			name      string
-			id        int
+			id        int32
 			setupMock func(m *MockMovieRepository)
 			wantErr   bool
 		}{

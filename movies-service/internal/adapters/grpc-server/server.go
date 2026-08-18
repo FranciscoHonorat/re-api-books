@@ -21,14 +21,14 @@ func NewServer(service input.MovieService) *Server {
 }
 
 func (s *Server) GetMovieById(ctx context.Context, req *proto.GetMovieRequest) (*proto.GetMovieResponse, error) {
-	movie, err := s.service.GetMovieByID(ctx, int(req.Id))
+	movie, err := s.service.GetMovieByID(ctx, int32(req.Id))
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
 
 	return &proto.GetMovieResponse{
 		Movie: &proto.Movie{
-			Id:    int(movie.GetID()),
+			Id:    int32(movie.GetID()),
 			Title: movie.GetTitle(),
 			Year:  movie.GetYear(),
 		},
@@ -55,7 +55,7 @@ func (s *Server) ListMovie(ctx context.Context, req *proto.ListMovieRequest) (*p
 	var protoMovies []*proto.Movie
 	for _, m := range movies {
 		protoMovies = append(protoMovies, &proto.Movie{
-			Id:    int(m.GetID()),
+			Id:    int32(m.GetID()),
 			Title: m.GetTitle(),
 			Year:  m.GetYear(),
 		})
@@ -76,7 +76,7 @@ func (s *Server) CreateMovie(ctx context.Context, req *proto.CreateMovieRequest)
 
 	return &proto.CreateMovieResponse{
 		Movie: &proto.Movie{
-			Id:    int(createdMovie.GetID()),
+			Id:    int32(createdMovie.GetID()),
 			Title: createdMovie.GetTitle(),
 			Year:  createdMovie.GetYear(),
 		},
@@ -84,7 +84,7 @@ func (s *Server) CreateMovie(ctx context.Context, req *proto.CreateMovieRequest)
 }
 
 func (s *Server) DeleteMovie(ctx context.Context, req *proto.DeleteMovieRequest) (*proto.DeleteMovieResponse, error) {
-	err := s.service.DeleteMovie(ctx, int(req.Id))
+	err := s.service.DeleteMovie(ctx, int32(req.Id))
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
